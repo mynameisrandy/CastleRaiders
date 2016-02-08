@@ -1,8 +1,9 @@
 ﻿#pragma strict
 
 public var speed : int = 3.0;
-public var jumpheight : int = 4;
-//public var jumpwidth : int = 5;
+public var jumpheight : int = 5;
+public var gravity : int = 10;
+public var airTime : int = 10;
 public var moveAnimName : String;
 public var idleAnimName : String;
 public var attackAnimName : String;
@@ -11,13 +12,16 @@ private var canjump = true;
 private var canrun = true;
 private var attack = false;
 private var idle = true;
-private var hit : RaycastHit;
+private var jumpAmount : int = 0;
 
 function Start () {
 	//anim = GetComponent.<Animation>();
+	GetComponent.<Rigidbody>().useGravity = false;
 }
 
-function Update () {
+function FixedUpdate () {
+	GetComponent.<Rigidbody>().AddForce(new Vector3(0, -gravity*GetComponent.<Rigidbody>().mass, 0));
+
 	if(Input.GetKey('right')) {
 		transform.Translate(Vector3.forward * speed * Time.deltaTime);
 		transform.eulerAngles = Vector3(0, 90, 0);
@@ -26,9 +30,13 @@ function Update () {
 			GetComponent.<Animation>().Play(moveAnimName);
 		}
 
-		if(Input.GetKey('space')) {
+		if(Input.GetKey('space') && canjump) {
 			jumpAnim();
 		}
+
+		/*if(Input.GetKey('down')) {
+			crouchAnim();
+		}*/
 
 	}else if(Input.GetKey('left')) {
 		transform.eulerAngles = Vector3(0, 270, 0);
@@ -38,7 +46,7 @@ function Update () {
 			GetComponent.<Animation>().Play(moveAnimName);
 		}
 
-		if(Input.GetKey('space')) {
+		if(Input.GetKey('space') && canjump) {
 			jumpAnim();
 		}
 
@@ -61,6 +69,13 @@ function Update () {
 	Debug.DrawRay(transform.position, forward, Color.red);*/
 }
 
+
+/*function crouchAnim() {
+	idle = false;
+	GetComponent.<Animation>().Play('MM_Sneaking');
+	idle = true;
+}*/ 
+
 function attackAnim() {
 	idle = false;
 	GetComponent.<Animation>().Play(attackAnimName);
@@ -69,19 +84,25 @@ function attackAnim() {
 } 
 
 function jumpAnim() {
-	canjump = false;
-	canrun = false;
-	idle = false;
-	GetComponent.<Animation>().Play(jumpAnimName);
-	this.GetComponent.<Rigidbody>().velocity.y = jumpheight;
-	//this.GetComponent.<Rigidbody>().velocity.x = jumpwidth;
-	yield WaitForSeconds(0.85);
-	idle = true;
-	canrun = true;
+	if(jumpAmount <= airTime) {
+		jumpAmount++;
+		canrun = false;
+		idle = false;
+		GetComponent.<Animation>().Play(jumpAnimName);
+		this.GetComponent.<Rigidbody>().velocity.y = jumpheight;
+		//this.GetComponent.<Rigidbody>().velocity.x = jumpwidth;
+		yield WaitForSeconds(0.85);
+		idle = true;
+		canrun = true;
+	}else {
+		canjump = false;
+		//jumpAmount = 0;
+	}
 }
 
-function OnCollisionEnter(other : Collision) {  
+function OnCollisionEnter(other : Collision) { 
       if(other.transform.tag == 'Ground') {
       	canjump = true;
+      	jumpAmount = 0;
       }
  }
