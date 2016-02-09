@@ -105,4 +105,13 @@ function OnCollisionEnter(other : Collision) {
       	canjump = true;
       	jumpAmount = 0;
       }
+
+      if(other.transform.tag == "health") {
+		Destroy(other.gameObject);
+	}
+
+	if(other.transform.tag == "life") {
+		Destroy(other.gameObject);
+	}
+	
  }
