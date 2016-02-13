@@ -1,18 +1,22 @@
 ﻿#pragma strict
 
-public var speed : int = 3.0;
-public var jumpheight : int = 5;
-public var gravity : int = 10;
+public var speed : int = 4.0;
+public var jumpheight : int = 6;
+public var gravity : int = 15;
 public var airTime : int = 10;
 public var moveAnimName : String;
 public var idleAnimName : String;
 public var attackAnimName : String;
 public var jumpAnimName : String;
+public var dieAnimName : String;
+public var life : int = 2;
+public var health : float = 1;
 private var canjump = true;
 private var canrun = true;
 private var attack = false;
 private var idle = true;
 private var jumpAmount : int = 0;
+//private var speedPot : int = 8.0;
 
 function Start () {
 	//anim = GetComponent.<Animation>();
@@ -22,6 +26,8 @@ function Start () {
 function FixedUpdate () {
 	GetComponent.<Rigidbody>().AddForce(new Vector3(0, -gravity*GetComponent.<Rigidbody>().mass, 0));
 
+	
+	//MOVE RIGHT
 	if(Input.GetKey('right')) {
 		transform.Translate(Vector3.forward * speed * Time.deltaTime);
 		transform.eulerAngles = Vector3(0, 90, 0);
@@ -38,6 +44,7 @@ function FixedUpdate () {
 			crouchAnim();
 		}*/
 
+	//MOVE LEFT
 	}else if(Input.GetKey('left')) {
 		transform.eulerAngles = Vector3(0, 270, 0);
 		transform.Translate(Vector3.forward * speed * Time.deltaTime);
@@ -50,10 +57,15 @@ function FixedUpdate () {
 			jumpAnim();
 		}
 
+	//JUMP
 	}else if(Input.GetKey('space') && canjump) {
         jumpAnim();
+
+    //ATTACK
     }else if(Input.GetKey('a')) {
     	attackAnim();
+
+    //IDLE
     }else if(idle) {
     	GetComponent.<Animation>().Play(idleAnimName);
     }
@@ -76,6 +88,8 @@ function FixedUpdate () {
 	idle = true;
 }*/ 
 
+
+//ATTACK ANIMATION
 function attackAnim() {
 	idle = false;
 	GetComponent.<Animation>().Play(attackAnimName);
@@ -83,6 +97,7 @@ function attackAnim() {
 	idle = true;
 } 
 
+//JUMP ANIMATION
 function jumpAnim() {
 	if(jumpAmount <= airTime) {
 		jumpAmount++;
@@ -101,17 +116,77 @@ function jumpAnim() {
 }
 
 function OnCollisionEnter(other : Collision) { 
-      if(other.transform.tag == 'Ground') {
+	
+	//DETECT GROUND
+    if(other.transform.tag == 'Ground') {
       	canjump = true;
       	jumpAmount = 0;
-      }
+    }
 
-      if(other.transform.tag == "health") {
+    //ITEM PICKUPS
+    if(other.transform.tag == "health") {
+      	if(health < 1){
+			health += 0.05;
+		}
 		Destroy(other.gameObject);
 	}
 
-	if(other.transform.tag == "life") {
+	if(other.transform.tag == "strength") {
 		Destroy(other.gameObject);
 	}
 	
+	if(other.transform.tag == "speed") {
+		other.gameObject.SetActive(false);
+		speed = 6;
+		yield WaitForSeconds(4);
+		speed = 4;
+		Destroy(other.gameObject);
+		//transform.Translate(Vector3.forward * speedPot * Time.deltaTime);
+		//GetComponent.<Animation>().Play(moveAnimName);
+	}
+
+	if(other.transform.tag == "life") {
+		life += 1;
+		Destroy(other.gameObject);
+	}
+	//END ITEM PICKUPS
+
+
+	//MOVE WITH PLATFORM
+	if(other.transform.tag == "platform"){
+		//Debug.Log('collider');
+		transform.parent = other.transform;
+	}
+
+	//SPIKES - DYING ANIMATION
+	if(other.transform.tag == "spikes"){
+		//Debug.Log('uh oh');
+		canjump = false;
+		canrun = false;
+		idle = false;
+		GetComponent.<Animation>().Play(dieAnimName);
+	}
+
+	if(other.transform.tag == "msg1") {
+		Debug.Log('msg');
+		var textScript = gameObject.FindGameObjectWithTag("welcomeMsg").GetComponent(tutorialMsg);
+			textScript.enable();
+	}
+
+	if(other.transform.tag == "msg2") {
+		Debug.Log('msg');
+		var jumpScript = gameObject.FindGameObjectWithTag("jumpMsg").GetComponent(tutorialMsg);
+			jumpScript.enable();
+	}
+
  }
+
+ 
+function OnCollisionExit(other : Collision){
+
+	//STOP MOVING WITH PLATFORM
+    if(other.transform.tag == "platform"){
+    	//Debug.Log('bye');
+        transform.parent = null;
+    }
+}
