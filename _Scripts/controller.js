@@ -10,7 +10,7 @@ public var attackAnimName : String;
 public var jumpAnimName : String;
 public var dieAnimName : String;
 public var life : int = 2;
-private var health : float = 90;
+public var health : float = 95;
 private var canjump = true;
 private var canrun = true;
 private var attack = false;
@@ -142,8 +142,8 @@ function OnCollisionEnter(other : Collision) {
     }
 
     //ITEM PICKUPS
-    if(other.transform.tag == "health" & health < 100) {
-    	health ++;
+    if(other.transform.tag == "health") {
+    	health += 5;
     	if (health > 100) {
     		health = 100;
     	}
@@ -193,12 +193,14 @@ function OnCollisionEnter(other : Collision) {
 		Debug.Log('msg');
 		var textScript = gameObject.FindGameObjectWithTag("welcomeMsg").GetComponent(tutorialMsg);
 			textScript.enable();
+			Destroy(other.gameObject);
 	}
 
 	if(other.transform.tag == "msg2") {
 		Debug.Log('msg');
 		var jumpScript = gameObject.FindGameObjectWithTag("jumpMsg").GetComponent(tutorialMsg);
 			jumpScript.enable();
+			Destroy(other.gameObject);
 	}
 
  }
