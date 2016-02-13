@@ -10,13 +10,32 @@ public var attackAnimName : String;
 public var jumpAnimName : String;
 public var dieAnimName : String;
 public var life : int = 2;
-public var health : float = 1;
+private var health : float = 90;
 private var canjump = true;
 private var canrun = true;
 private var attack = false;
 private var idle = true;
 private var jumpAmount : int = 0;
 //private var speedPot : int = 8.0;
+
+
+function reduceHealth() {
+	health--;
+}
+
+// Health GUI
+function getHealth() {
+	return health;
+}
+
+
+function Update() {
+	// Player dies, Game over
+	if (health <= 0) {
+		Application.LoadLevel("LoseScreen");
+	}
+}
+
 
 function Start () {
 	//anim = GetComponent.<Animation>();
@@ -25,7 +44,6 @@ function Start () {
 
 function FixedUpdate () {
 	GetComponent.<Rigidbody>().AddForce(new Vector3(0, -gravity*GetComponent.<Rigidbody>().mass, 0));
-
 	
 	//MOVE RIGHT
 	if(Input.GetKey('right')) {
@@ -70,7 +88,7 @@ function FixedUpdate () {
     	GetComponent.<Animation>().Play(idleAnimName);
     }
 
-      /*var fwd = transform.TransformDirection(Vector3.forward);
+     /*var fwd = transform.TransformDirection(Vector3.forward);
 
       if(Physics.Raycast(transform.position, fwd, hit, 2) && hit.collider.gameObject.CompareTag("test")) {
 		Debug.Log("spacedoor");
@@ -124,11 +142,15 @@ function OnCollisionEnter(other : Collision) {
     }
 
     //ITEM PICKUPS
-    if(other.transform.tag == "health") {
-      	if(health < 1){
-			health += 0.05;
-		}
-		Destroy(other.gameObject);
+    if(other.transform.tag == "health" & health < 100) {
+    	health ++;
+    	if (health > 100) {
+    		health = 100;
+    	}
+    	// Debug.Log(health);
+    	Destroy(other.gameObject);
+    	// Player Pick up Health 
+    	// GameObject.FindGameObjectWithTag("health_ui").GetComponent(UI.RawImage).texture = Resources.Load("pickup1", typeof(Texture)) as Texture;
 	}
 
 	if(other.transform.tag == "strength") {
