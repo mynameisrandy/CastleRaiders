@@ -11,6 +11,7 @@ public var jumpAnimName : String;
 public var dieAnimName : String;
 public var life : int = 2;
 public var health : float = 95;
+public var strength : int = 10;
 private var canjump = true;
 private var canrun = true;
 private var attack = false;
@@ -29,12 +30,12 @@ function getHealth() {
 }
 
 
-function Update() {
+/*function Update() {
 	// Player dies, Game over
-	if (health <= 0) {
+	if (life < 0) {
 		Application.LoadLevel("LoseScreen");
 	}
-}
+}*/
 
 
 function Start () {
@@ -45,6 +46,24 @@ function Start () {
 function FixedUpdate () {
 	GetComponent.<Rigidbody>().AddForce(new Vector3(0, -gravity*GetComponent.<Rigidbody>().mass, 0));
 	
+	//CHECK LIFE/HEALTH COUNT
+	if(life < 1) {
+		GameObject.FindGameObjectWithTag("Life_UI").GetComponent(UI.RawImage).texture = Resources.Load("unpickup3", typeof(Texture)) as Texture;
+	}else {
+		GameObject.FindGameObjectWithTag("Life_UI").GetComponent(UI.RawImage).texture = Resources.Load("pickup4", typeof(Texture)) as Texture;
+	}
+
+	if (life < 0) {
+		Application.LoadLevel("LoseScreen");
+	}
+
+	//Can be used for life loss when enemy is attacking and health goes to 0
+	/*if (health <= 0) {
+		life --;
+		var lifeStr1 = life.ToString();
+		GameObject.FindGameObjectWithTag("lifeCount").GetComponent(UI.Text).text = lifeStr1;
+	}*/
+
 	//MOVE RIGHT
 	if(Input.GetKey('right')) {
 		transform.Translate(Vector3.forward * speed * Time.deltaTime);
@@ -154,24 +173,33 @@ function OnCollisionEnter(other : Collision) {
 	}
 
 	if(other.transform.tag == "strength") {
+		other.gameObject.SetActive(false);
+		GameObject.FindGameObjectWithTag("Strength_UI").GetComponent(UI.RawImage).texture = Resources.Load("pickup1", typeof(Texture)) as Texture;
+		strength = 15;
+		yield WaitForSeconds(4);
+		strength = 10;
+		GameObject.FindGameObjectWithTag("Strength_UI").GetComponent(UI.RawImage).texture = Resources.Load("unpickup2", typeof(Texture)) as Texture;
 		Destroy(other.gameObject);
 	}
 	
 	if(other.transform.tag == "speed") {
 		other.gameObject.SetActive(false);
+		GameObject.FindGameObjectWithTag("Speed_UI").GetComponent(UI.RawImage).texture = Resources.Load("pickup2", typeof(Texture)) as Texture;
 		speed = 6;
 		yield WaitForSeconds(4);
 		speed = 4;
+		GameObject.FindGameObjectWithTag("Speed_UI").GetComponent(UI.RawImage).texture = Resources.Load("unpickup2", typeof(Texture)) as Texture;
 		Destroy(other.gameObject);
 		//transform.Translate(Vector3.forward * speedPot * Time.deltaTime);
 		//GetComponent.<Animation>().Play(moveAnimName);
 	}
 
 	if(other.transform.tag == "life") {
-		life += 1;
+		life ++;
+		var lifeStr = life.ToString();
+		GameObject.FindGameObjectWithTag("lifeCount").GetComponent(UI.Text).text = lifeStr;
 		Destroy(other.gameObject);
-	}
-	//END ITEM PICKUPS
+	}//END ITEM PICKUPS
 
 
 	//MOVE WITH PLATFORM
@@ -189,6 +217,7 @@ function OnCollisionEnter(other : Collision) {
 		GetComponent.<Animation>().Play(dieAnimName);
 	}
 
+	//TUTORIAL MSGS
 	if(other.transform.tag == "msg1") {
 		Debug.Log('msg');
 		var textScript = gameObject.FindGameObjectWithTag("welcomeMsg").GetComponent(tutorialMsg);
@@ -202,6 +231,20 @@ function OnCollisionEnter(other : Collision) {
 			jumpScript.enable();
 			Destroy(other.gameObject);
 	}
+
+	if(other.transform.tag == "msg3") {
+		Debug.Log('msg');
+		var djumpScript = gameObject.FindGameObjectWithTag("djumpMsg").GetComponent(tutorialMsg);
+			djumpScript.enable();
+			Destroy(other.gameObject);
+	}
+
+	if(other.transform.tag == "msg4") {
+		Debug.Log('msg');
+		var healthScript = gameObject.FindGameObjectWithTag("healthMsg").GetComponent(tutorialMsg);
+			healthScript.enable();
+			Destroy(other.gameObject);
+	}//END TUTORIAL MSGS
 
  }
 
