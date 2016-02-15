@@ -13,15 +13,37 @@ function startStory() {
 
 function levelSelect() {
 	Application.LoadLevel("LevelSelectScreen");
+} 
+
+function LevelOne() {
+	Application.LoadLevel("LevelOne");
+}
+
+function LevelTwo() {
+	Application.LoadLevel("LevelTwo");
+}
+
+function LevelThree() {
+	Application.LoadLevel("LevelThree");
 }
 
 
-function howtoPlay() {}
+function howtoPlay() {
+	// Show Controls inGame	
+}
 
-function quitGame() {}
+function quitGame() {
+	Application.Quit();
+}
 
-function objectiveMenu() {}
+function objectiveMenu() {
+	// Show Objective Menu inGame
+}
 
-function pause() {}
+function instructionsScreen() {
+	
+}
 
-function saveGame() {}
+function playerControl() {
+	// Menu Screen
+}
