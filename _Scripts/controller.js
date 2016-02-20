@@ -18,7 +18,7 @@ private var attack = false;
 private var idle = true;
 private var jumpAmount : int = 0;
 //private var speedPot : int = 8.0;
-
+public var coins : int = 0;
 
 function reduceHealth() {
 	health--;
@@ -199,7 +199,14 @@ function OnCollisionEnter(other : Collision) {
 		var lifeStr = life.ToString();
 		GameObject.FindGameObjectWithTag("lifeCount").GetComponent(UI.Text).text = lifeStr;
 		Destroy(other.gameObject);
-	}//END ITEM PICKUPS
+	}
+
+
+	if (other.transform.tag == "coins") {
+		coins ++;
+		Debug.Log('I got ' + coins + " coin");
+		Destroy(other.gameObject);
+	} //END ITEM PICKUPS
 
 
 	//MOVE WITH PLATFORM
