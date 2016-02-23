@@ -13,7 +13,11 @@ function startStory() {
 
 function levelSelect() {
 	Application.LoadLevel("LevelSelectScreen");
-} 
+}
+
+function savedScreen() {
+	Application.LoadLevel("SaveScreen");
+}
 
 function LevelOne() {
 	Application.LoadLevel("LevelOne");
@@ -36,14 +40,7 @@ function quitGame() {
 	Application.Quit();
 }
 
-function objectiveMenu() {
-	// Show Objective Menu inGame
-}
-
-function instructionsScreen() {
-	
-}
-
-function playerControl() {
-	// Menu Screen
+function helpWindow() {
+	var gui = GameObject.FindGameObjectWithTag("GUI").GetComponent(guiScript);
+	gui.help.enabled = !gui.help.enabled;
 }
