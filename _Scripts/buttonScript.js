@@ -15,6 +15,10 @@ function levelSelect() {
 	Application.LoadLevel("LevelSelectScreen");
 }
 
+function characterSelect() {
+	Application.LoadLevel("CharacterSelect");
+}
+
 function savedScreen() {
 	Application.LoadLevel("SaveScreen");
 }
@@ -29,11 +33,6 @@ function LevelTwo() {
 
 function LevelThree() {
 	Application.LoadLevel("LevelThree");
-}
-
-
-function howtoPlay() {
-	// Show Controls inGame	
 }
 
 function quitGame() {

@@ -185,9 +185,9 @@ function OnCollisionEnter(other : Collision) {
 	if(other.transform.tag == "speed") {
 		other.gameObject.SetActive(false);
 		GameObject.FindGameObjectWithTag("Speed_UI").GetComponent(UI.RawImage).texture = Resources.Load("pickup2", typeof(Texture)) as Texture;
-		speed = 6;
+		speed = 12;
 		yield WaitForSeconds(4);
-		speed = 4;
+		speed = 8;
 		GameObject.FindGameObjectWithTag("Speed_UI").GetComponent(UI.RawImage).texture = Resources.Load("unpickup2", typeof(Texture)) as Texture;
 		Destroy(other.gameObject);
 		//transform.Translate(Vector3.forward * speedPot * Time.deltaTime);
@@ -203,7 +203,7 @@ function OnCollisionEnter(other : Collision) {
 
 
 	if (other.transform.tag == "coins") {
-		coins ++;
+		coins += 5;
 		Debug.Log('I got ' + coins + " coin");
 		Destroy(other.gameObject);
 	} //END ITEM PICKUPS
