@@ -18,6 +18,7 @@ private var attack = false;
 private var idle = true;
 private var jumpAmount : int = 0;
 private var checkpoint : GameObject;
+public var coins : int = 0;
 //private var camera : GameObject;
 //private var speedPot : int = 8.0;
 
@@ -254,6 +255,12 @@ function OnCollisionEnter(other : Collision) {
 		GameObject.FindGameObjectWithTag("lifeCount").GetComponent(UI.Text).text = lifeStr;
 		Destroy(other.gameObject);
 	}//END ITEM PICKUPS
+
+	if(other.transform.tag == "coins") {
+		coins += 5;
+		Debug.Log('I got coins');
+		Destroy(other.gameObject);
+	}
 
 
 	//MOVE WITH PLATFORM
