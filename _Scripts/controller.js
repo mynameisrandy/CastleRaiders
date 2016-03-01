@@ -11,24 +11,28 @@ public var jumpAnimName : String;
 public var dieAnimName : String;
 public var life : int = 2;
 public var health : float = 95;
-public var strength : int = 10;
+//public var strength : int = 10;
 private var canjump = true;
 private var canrun = true;
 private var attack = false;
 private var idle = true;
 private var jumpAmount : int = 0;
+private var checkpoint : GameObject;
+//private var camera : GameObject;
 //private var speedPot : int = 8.0;
-public var coins : int = 0;
 
-function reduceHealth() {
-	health--;
+function reduceHealth(enemyHit : int) {
+	health -= enemyHit;
+	if(health <= 0) {
+		die();
+	}
+	//Debug.Log('loose');
 }
 
 // Health GUI
 function getHealth() {
 	return health;
 }
-
 
 /*function Update() {
 	// Player dies, Game over
@@ -37,10 +41,31 @@ function getHealth() {
 	}
 }*/
 
-
 function Start () {
 	//anim = GetComponent.<Animation>();
 	GetComponent.<Rigidbody>().useGravity = false;
+	checkpoint = GameObject.Find("checkpoint");
+	var contParent = transform.parent;
+	
+	//USE TO CLEAR OUT PLAYER PREFS
+	//Debug.Log(contParent);
+	//PlayerPrefs.DeleteKey("lives");
+	//PlayerPrefs.DeleteKey("checkpointPos");
+
+	//Check for checkpoint saved
+	if(PlayerPrefs.HasKey('checkpointPos')) {
+		if(PlayerPrefs.GetString("checkpointPos") == 'true') {
+			contParent.transform.parent = checkpoint.transform;
+			contParent.transform.localPosition = new Vector3(0,0,0);
+		}
+	}
+
+	//Check for set lives
+	if(PlayerPrefs.HasKey("lives")){
+		life = PlayerPrefs.GetInt("lives");
+		var lifeStr1 = life.ToString();
+		GameObject.FindGameObjectWithTag("lifeCount").GetComponent(UI.Text).text = lifeStr1;
+	}
 }
 
 function FixedUpdate () {
@@ -52,17 +77,6 @@ function FixedUpdate () {
 	}else {
 		GameObject.FindGameObjectWithTag("Life_UI").GetComponent(UI.RawImage).texture = Resources.Load("pickup4", typeof(Texture)) as Texture;
 	}
-
-	if (life < 0) {
-		Application.LoadLevel("LoseScreen");
-	}
-
-	//Can be used for life loss when enemy is attacking and health goes to 0
-	/*if (health <= 0) {
-		life --;
-		var lifeStr1 = life.ToString();
-		GameObject.FindGameObjectWithTag("lifeCount").GetComponent(UI.Text).text = lifeStr1;
-	}*/
 
 	//MOVE RIGHT
 	if(Input.GetKey('right')) {
@@ -152,6 +166,37 @@ function jumpAnim() {
 	}
 }
 
+//DIE ANIMATION / FUNCTION
+function die() {
+	canjump = false;
+	canrun = false;
+	idle = false;
+	life --;
+	saveLifeCount(life);
+	GetComponent.<Animation>().Play(dieAnimName);
+	yield WaitForSeconds(2);
+	
+	if (life < 0) {
+		Application.LoadLevel("LoseScreen");
+	}else {
+		Application.LoadLevel(Application.loadedLevelName);
+	}
+}
+
+function saveLifeCount(lifeNumber : int){
+	PlayerPrefs.SetInt("lives", lifeNumber);
+}
+
+function savePosition(whatPosition : String){
+	PlayerPrefs.SetString("checkpointPos", whatPosition);
+}
+
+function pickupAudio() {
+	var potionAudio = GameObject.Find('PotionSounds');
+	potionAudio.GetComponent.<AudioSource>().Play();
+}
+
+
 function OnCollisionEnter(other : Collision) { 
 	
 	//DETECT GROUND
@@ -162,6 +207,7 @@ function OnCollisionEnter(other : Collision) {
 
     //ITEM PICKUPS
     if(other.transform.tag == "health") {
+    	pickupAudio();
     	health += 5;
     	if (health > 100) {
     		health = 100;
@@ -173,21 +219,27 @@ function OnCollisionEnter(other : Collision) {
 	}
 
 	if(other.transform.tag == "strength") {
+		pickupAudio();
 		other.gameObject.SetActive(false);
 		GameObject.FindGameObjectWithTag("Strength_UI").GetComponent(UI.RawImage).texture = Resources.Load("pickup1", typeof(Texture)) as Texture;
-		strength = 15;
-		yield WaitForSeconds(4);
-		strength = 10;
+		
+		var playerWeapon = GameObject.FindGameObjectWithTag("playerWeapon").GetComponent(weapon);
+        playerWeapon.strength += 10;
+
+		//strength = 15;
+		yield WaitForSeconds(6);
+		playerWeapon.strength -= 10;
 		GameObject.FindGameObjectWithTag("Strength_UI").GetComponent(UI.RawImage).texture = Resources.Load("unpickup2", typeof(Texture)) as Texture;
 		Destroy(other.gameObject);
 	}
 	
 	if(other.transform.tag == "speed") {
+		pickupAudio();
 		other.gameObject.SetActive(false);
 		GameObject.FindGameObjectWithTag("Speed_UI").GetComponent(UI.RawImage).texture = Resources.Load("pickup2", typeof(Texture)) as Texture;
-		speed = 12;
+		speed = 6;
 		yield WaitForSeconds(4);
-		speed = 8;
+		speed = 4;
 		GameObject.FindGameObjectWithTag("Speed_UI").GetComponent(UI.RawImage).texture = Resources.Load("unpickup2", typeof(Texture)) as Texture;
 		Destroy(other.gameObject);
 		//transform.Translate(Vector3.forward * speedPot * Time.deltaTime);
@@ -195,18 +247,13 @@ function OnCollisionEnter(other : Collision) {
 	}
 
 	if(other.transform.tag == "life") {
+		pickupAudio();
 		life ++;
+		saveLifeCount(life);
 		var lifeStr = life.ToString();
 		GameObject.FindGameObjectWithTag("lifeCount").GetComponent(UI.Text).text = lifeStr;
 		Destroy(other.gameObject);
-	}
-
-
-	if (other.transform.tag == "coins") {
-		coins += 5;
-		Debug.Log('I got ' + coins + " coin");
-		Destroy(other.gameObject);
-	} //END ITEM PICKUPS
+	}//END ITEM PICKUPS
 
 
 	//MOVE WITH PLATFORM
@@ -218,44 +265,98 @@ function OnCollisionEnter(other : Collision) {
 	//SPIKES - DYING ANIMATION
 	if(other.transform.tag == "spikes"){
 		//Debug.Log('uh oh');
-		canjump = false;
-		canrun = false;
-		idle = false;
-		GetComponent.<Animation>().Play(dieAnimName);
+		health = 0;
+		die();
+	}
+
+	if(other.transform.tag == "checkpoint") {
+		//Debug.Log('checkpoint');
+		//checkpoint = other.gameObject;
+		//Debug.Log(checkpoint)
+		savePosition('true');
+		var checkScript = gameObject.FindGameObjectWithTag("lid").GetComponent(openLid);
+		checkScript.open();
+		//transform.parent = checkpoint.transform;
+		//transform.localPosition = new Vector3(0,0,0);
+	}
+
+	if(other.transform.tag == "endpoint") {
+		//Debug.Log('endpoint');
+		PlayerPrefs.DeleteKey("checkpointPos");		
+		var checkDoor : GameObject[] = gameObject.FindGameObjectsWithTag("door");
+		var rotateNumber : int = 90;
+		for(var i : int = 0; i<checkDoor.Length; i++) {
+			checkDoor[i].GetComponent(openLid).openDoor(rotateNumber);
+			rotateNumber = rotateNumber*3;
+		}
+		Destroy(other.gameObject);
 	}
 
 	//TUTORIAL MSGS
 	if(other.transform.tag == "msg1") {
-		Debug.Log('msg');
+		//Debug.Log('msg');
 		var textScript = gameObject.FindGameObjectWithTag("welcomeMsg").GetComponent(tutorialMsg);
 			textScript.enable();
 			Destroy(other.gameObject);
 	}
 
 	if(other.transform.tag == "msg2") {
-		Debug.Log('msg');
+		//Debug.Log('msg');
 		var jumpScript = gameObject.FindGameObjectWithTag("jumpMsg").GetComponent(tutorialMsg);
 			jumpScript.enable();
 			Destroy(other.gameObject);
 	}
 
 	if(other.transform.tag == "msg3") {
-		Debug.Log('msg');
+		//Debug.Log('msg');
 		var djumpScript = gameObject.FindGameObjectWithTag("djumpMsg").GetComponent(tutorialMsg);
 			djumpScript.enable();
 			Destroy(other.gameObject);
 	}
 
 	if(other.transform.tag == "msg4") {
-		Debug.Log('msg');
+		//Debug.Log('msg');
 		var healthScript = gameObject.FindGameObjectWithTag("healthMsg").GetComponent(tutorialMsg);
 			healthScript.enable();
 			Destroy(other.gameObject);
+	}
+
+	if(other.transform.tag == "msg5") {
+		Debug.Log('msg');
+		var enemyScript = gameObject.FindGameObjectWithTag("enemyMsg").GetComponent(tutorialMsg);
+			enemyScript.enable();
+			Destroy(other.gameObject);
+	}
+
+	if(other.transform.tag == "msg6") {
+		Debug.Log('msg');
+		var speedScript = gameObject.FindGameObjectWithTag("speedMsg").GetComponent(tutorialMsg);
+			speedScript.enable();
+			Destroy(other.gameObject);
+	}
+
+	if(other.transform.tag == "msg7") {
+		Debug.Log('msg');
+		var strengthScript = gameObject.FindGameObjectWithTag("strengthMsg").GetComponent(tutorialMsg);
+			strengthScript.enable();
+			Destroy(other.gameObject);
+	}
+
+	if(other.transform.tag == "msg8") {
+		Debug.Log('msg');
+		var lifeMsg = gameObject.FindGameObjectWithTag("lifeMsg").GetComponent(tutorialMsg);
+			lifeMsg.enable();
+			Destroy(other.gameObject);
 	}//END TUTORIAL MSGS
+
+	/*if(other.transform.tag == 'Enemy') {
+		Debug.Log('enemy hit');
+		var enemy = GameObject.FindGameObjectWithTag("Enemy").GetComponent(WayPoint);
+        enemy.looseHealth();
+    }*/
 
  }
 
- 
 function OnCollisionExit(other : Collision){
 
 	//STOP MOVING WITH PLATFORM
