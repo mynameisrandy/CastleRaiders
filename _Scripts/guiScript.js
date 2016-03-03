@@ -1,8 +1,7 @@
 #pragma strict
 
-
 var healthBar:UI.RawImage;
-var coinField:UI.Text;
+var coinField : GameObject;
 var help:UI.RawImage;
 
 
@@ -19,5 +18,8 @@ function Update() {
 
 	// Coin
 	var coinValue : String = player.coins.ToString();
-	coinField.text = "Points:" + coinValue;
+	//Debug.Log(coinValue);
+	coinField = gameObject.FindGameObjectWithTag('pointsTxt');
+	coinField.GetComponent(UI.Text).text = "Points: " + coinValue;
+	//Debug.Log(coinField);
 }
