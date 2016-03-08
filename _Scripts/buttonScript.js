@@ -35,6 +35,10 @@ function LevelThree() {
 	Application.LoadLevel("LevelThree");
 }
 
+function controls() {
+	Application.LoadLevel("InstructionScreen");
+}
+
 function quitGame() {
 	Application.Quit();
 }

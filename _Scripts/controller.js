@@ -258,7 +258,7 @@ function OnCollisionEnter(other : Collision) {
 
 	if(other.transform.tag == "coins") {
 		coins += 5;
-		Debug.Log('I got coins');
+		//Debug.Log('I got coins');
 		Destroy(other.gameObject);
 	}
 
@@ -329,30 +329,37 @@ function OnCollisionEnter(other : Collision) {
 	}
 
 	if(other.transform.tag == "msg5") {
-		Debug.Log('msg');
+		//Debug.Log('msg');
 		var enemyScript = gameObject.FindGameObjectWithTag("enemyMsg").GetComponent(tutorialMsg);
 			enemyScript.enable();
 			Destroy(other.gameObject);
 	}
 
 	if(other.transform.tag == "msg6") {
-		Debug.Log('msg');
+		//Debug.Log('msg');
 		var speedScript = gameObject.FindGameObjectWithTag("speedMsg").GetComponent(tutorialMsg);
 			speedScript.enable();
 			Destroy(other.gameObject);
 	}
 
 	if(other.transform.tag == "msg7") {
-		Debug.Log('msg');
+		//Debug.Log('msg');
 		var strengthScript = gameObject.FindGameObjectWithTag("strengthMsg").GetComponent(tutorialMsg);
 			strengthScript.enable();
 			Destroy(other.gameObject);
 	}
 
 	if(other.transform.tag == "msg8") {
-		Debug.Log('msg');
+		//Debug.Log('msg');
 		var lifeMsg = gameObject.FindGameObjectWithTag("lifeMsg").GetComponent(tutorialMsg);
 			lifeMsg.enable();
+			Destroy(other.gameObject);
+	}
+
+	if(other.transform.tag == "msg9") {
+		//Debug.Log('msg');
+		var coinMsg = gameObject.FindGameObjectWithTag("coinMsg").GetComponent(tutorialMsg);
+			coinMsg.enable();
 			Destroy(other.gameObject);
 	}//END TUTORIAL MSGS
 
