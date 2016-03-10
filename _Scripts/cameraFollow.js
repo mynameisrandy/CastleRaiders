@@ -1,9 +1,11 @@
-#pragma strict
+﻿#pragma strict
 
-public var target : Transform;
+public var target : GameObject;
 private var relativePosition : Vector3;
  
 function Start() {
+
+
     relativePosition = target.transform.position - transform.position;
 }
  
