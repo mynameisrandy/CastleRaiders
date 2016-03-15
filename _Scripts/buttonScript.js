@@ -55,7 +55,12 @@ function characterSelection(character : String) {
 }
 
 function levelSelection(level : String) {
-	//PlayerPrefs.SetString("levelSelection", level);
+	PlayerPrefs.SetString("levelSelection", level);
 	Debug.Log(level);
 	Application.LoadLevel(level);
+}
+
+function loadGame() {
+	var levelSelection = PlayerPrefs.GetString("levelSelection");
+	Application.LoadLevel(levelSelection);
 }
