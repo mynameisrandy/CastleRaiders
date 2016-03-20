@@ -1,7 +1,7 @@
 ﻿#pragma strict
-
 // buttonScripts
 
+private var toggleQuit : boolean = false;
 
 function startScreen() {
 	Application.LoadLevel("StartScreen");
@@ -35,6 +35,12 @@ function LevelThree() {
 	Application.LoadLevel("Level3");
 }*/
 
+function resetGame() {
+	PlayerPrefs.DeleteAll();
+	startScreen();
+}
+
+
 function controls() {
 	Application.LoadLevel("InstructionScreen");
 }
@@ -48,6 +54,17 @@ function helpWindow() {
 	gui.help.enabled = !gui.help.enabled;
 }
 
+function quitWindow() {
+	var gui = GameObject.FindGameObjectWithTag("GUI").GetComponent(guiScript);
+	if(toggleQuit) {
+		gui.menu.SetActive(false);
+		toggleQuit = false;
+	}else {
+		gui.menu.SetActive(true);
+		toggleQuit = true;
+	}
+}
+
 function characterSelection(character : String) {
 	PlayerPrefs.SetString("characterSelection", character);
 	//Debug.Log(character);
@@ -55,12 +72,20 @@ function characterSelection(character : String) {
 }
 
 function levelSelection(level : String) {
+	PlayerPrefs.SetString("game", "true");
 	PlayerPrefs.SetString("levelSelection", level);
 	Debug.Log(level);
 	Application.LoadLevel(level);
 }
 
 function loadGame() {
-	var levelSelection = PlayerPrefs.GetString("levelSelection");
-	Application.LoadLevel(levelSelection);
+	var checkSaved = PlayerPrefs.GetString("game");
+	if(checkSaved == "true") {
+		var levelSelection = PlayerPrefs.GetString("levelSelection");
+		Application.LoadLevel(levelSelection);
+	}else {
+		var start = GameObject.Find("SceneManager").GetComponent(startScript);
+		start.saveMsg.SetActive(true);
+		start.setMsg();
+	}
 }

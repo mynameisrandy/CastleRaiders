@@ -3,12 +3,14 @@
 var healthBar:UI.RawImage;
 var coinField : GameObject;
 var help:UI.RawImage;
+var menu : GameObject;
 var timerField : GameObject;
 var timer : int;
 
 
-function Awake() {
+function Start() {
 	help.enabled = false;
+	menu.SetActive(false);
 	timer = 0;
 	InvokeRepeating("startTimer", 0, 1);
 }
